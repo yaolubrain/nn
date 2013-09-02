@@ -51,8 +51,8 @@ a2 = f(z2);
 
 p2 = mean(a2);
 p1 = mean(a1);
-delta2 = (a2 - patches + sparsityParam*(-bsxfun(@rdivide,p2,a2) + bsxfun(@rdivide,(1-p2),(1-a2)))) .* fPrime(z2);
-delta1 = (W2'*delta2 + sparsityParam*(-bsxfun(@rdivide,p1,a1) + bsxfun(@rdivide,(1-p1),(1-a1)))) .* fPrime(z1);
+delta2 = (a2 - patches + (-sparsityParam./a2 + (1-sparsityParam)./(1-a2))) .* fPrime(z2);
+delta1 = (W2'*delta2 + (-sparsityParam./a1 + (1-sparsityParam)./(1-a1))) .* fPrime(z1);
 
 W2grad = (delta2 * a1')/size(patches,2);
 W1grad = (delta1 * patches')/size(patches,2);
@@ -63,8 +63,8 @@ b1grad = mean(delta1')';
 % After computing the cost and gradient, we will convert the gradients back
 % to a vector format (suitable for minFunc).  Specifically, we will unroll
 % your gradient matrices into a vector.
-cost = 1/2*sum(sum((patches - a2).^2)) ./ size(patches,2) + sparsityParam*(sum(sum(bsxfun(@times,p1,log(bsxfun(@rdivide,p1,a1))) ...
-                                                                             + bsxfun(@times,1-p1,log(bsxfun(@rdivide,1-p1,1-a1))))));
+cost = 1/2*sum(sum((patches - a2).^2)) ./ size(patches,2) + mean(mean(sparsityParam*log(sparsityParam./a2) ...
+                                                             + (1-sparsityParam)*log((1-sparsityParam)./(1-a2))));
 grad = [W1grad(:) ; W2grad(:) ; b1grad(:) ; b2grad(:)];
 
 end
